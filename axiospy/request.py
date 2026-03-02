@@ -18,4 +18,6 @@ class PreparedRequest:
     params: dict[str, Any] = field(default_factory=dict)
     data: Any = None
     json: Any = None
+    files: Any = None
+    stream: bool = False
     timeout: int | float = 30

@@ -108,6 +108,8 @@ class Axiospy:
             params=dict(config.get("params", {})),
             data=config.get("data"),
             json=config.get("json"),
+            files=config.get("files"),
+            stream=config.get("stream", False),
             timeout=config.get("timeout", 30),
         )
 
@@ -117,6 +119,26 @@ class Axiospy:
             strategy=config.get("retry_strategy"),
             retry_on=config.get("retry_on"),
         )
+
+    def _execute_sync(self, config: dict[str, Any]) -> Response:
+        cancel_token: CancelToken | None = config.get("cancel_token")
+
+        if cancel_token is not None:
+            cancel_token.raise_if_cancelled()
+
+        config = self._interceptors.request.run(config)
+
+        prepared = self._prepare_request(config)
+        retry = self._build_retry_engine(config)
+
+        def transport_call() -> Response:
+            if cancel_token is not None:
+                cancel_token.raise_if_cancelled()
+            return self._transport.send(prepared)
+
+        response = retry.execute(transport_call)
+        response = self._interceptors.response.run(response)
+        return response
 
     async def _execute_async(self, config: dict[str, Any]) -> Response:
         cancel_token: CancelToken | None = config.get("cancel_token")
@@ -146,6 +168,10 @@ class Axiospy:
         return await self._execute_async(config)
 
     def _dispatch_sync(self, config: dict[str, Any]) -> Response:
+        if config.get("stream"):
+            if len(self._middleware) > 0:
+                raise RuntimeError("Async middleware cannot be used with synchronous stream=True requests. Use async_get() instead.")
+            return self._execute_sync(config)
         return run_sync(self._dispatch_async(config))
 
     def request(self, method: str, url: str, **kwargs: Any) -> Response:

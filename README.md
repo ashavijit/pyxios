@@ -45,7 +45,10 @@ Requires Python 3.10+.
 ```python
 import axiospy
 
-# Create an isolated instance with default configuration
+# Zero-setup module level request
+response = axiospy.get("https://httpbin.org/get", params={"query": "python"})
+
+# Or create an isolated instance with default configuration
 api = axiospy.create({
     "base_url": "https://httpbin.org",
     "timeout": 10,
@@ -54,7 +57,7 @@ api = axiospy.create({
     }
 })
 
-# Make a request
+# Make a request using the instance
 response = api.get("/get", params={"query": "python"})
 
 print(f"Status: {response.status_code}")
@@ -71,13 +74,44 @@ import asyncio
 import axiospy
 
 async def fetch_data():
+    # Non-blocking async call via instance
     api = axiospy.create({"base_url": "https://httpbin.org"})
-    
-    # Non-blocking async call
     response = await api.async_get("/delay/2")
+    
+    # Or module level
+    response = await axiospy.async_get("https://httpbin.org/delay/2")
     print(response.data)
 
 asyncio.run(fetch_data())
+```
+
+### File Uploads
+
+Multipart file uploads are supported out of the box matching the `requests` interface.
+
+```python
+with open("report.csv", "rb") as f:
+    # Files can be passed as an open file handle or a tuple mapping
+    files = {"file": ("report.csv", f, "text/csv")}
+    response = axiospy.post("https://httpbin.org/post", files=files)
+```
+
+### Streaming Responses
+
+For large files or continuous data streams, use `stream=True`. The response is exposed as a context manager for both sync and async calls.
+
+```python
+import axiospy
+
+# Synchronous execution
+with axiospy.get("https://httpbin.org/stream-bytes/100", stream=True) as response:
+    for chunk in response.iter_bytes(chunk_size=10):
+        print(len(chunk))
+
+# Asynchronous execution in an async function
+async with await axiospy.async_get("https://.../stream", stream=True) as response:
+    async for line in response.aiter_lines():
+        print(line)
 ```
 
 ---
@@ -225,6 +259,8 @@ You can pass the following properties to `axiospy.create(config)` or as override
 | `params` | `dict` | URL Query parameters. |
 | `data` | `Any` | Request body content (raw). |
 | `json` | `Any` | Request body content (automatically serialized to JSON). |
+| `files` | `Any` | Multipart-encoded files dictionary. |
+| `stream` | `bool` | Stream the response (Default: False). |
 | `timeout` | `float` | Max seconds to wait for a response (Default: 30). |
 | `max_retries` | `int` | Maximum retry attempts on failure (Default: 0). |
 | `retry_strategy` | `RetryStrategy` | Backoff class instance (e.g., `ExponentialBackoff`). |
@@ -234,13 +270,16 @@ You can pass the following properties to `axiospy.create(config)` or as override
 
 ## Error Handling
 
-`axiospy` provides strongly typed exceptions extending from `AxiospyError`.
+`axiospy` provides strongly typed exceptions extending from `AxiospyError`. The `Response` object provides a `.raise_for_status()` method exactly like `requests`.
 
 ```python
 import axiospy
 
 try:
-    response = api.get("/flaky-endpoint")
+    response = axiospy.get("https://httpbin.org/status/404")
+    response.raise_for_status()
+except axiospy.HTTPStatusError as e:
+    print(f"Request failed with status code {e.response.status_code}")
 except axiospy.TimeoutError:
     print("Request timed out.")
 except axiospy.NetworkError:

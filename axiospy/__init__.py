@@ -26,6 +26,7 @@ from axiospy.exceptions import (
     AxiospyError,
     RetryError,
     TimeoutError,
+    HTTPStatusError,
 )
 from axiospy.plugins.auth import AuthPlugin
 from axiospy.plugins.base import Plugin
@@ -56,6 +57,7 @@ __all__ = [
     "CancelError",
     "RetryError",
     "InterceptorError",
+    "HTTPStatusError",
     "Plugin",
     "LoggerPlugin",
     "CachePlugin",
@@ -66,6 +68,18 @@ __all__ = [
     "FixedDelay",
     "ExponentialBackoff",
     "LinearBackoff",
+    "request",
+    "get",
+    "post",
+    "put",
+    "patch",
+    "delete",
+    "async_request",
+    "async_get",
+    "async_post",
+    "async_put",
+    "async_patch",
+    "async_delete",
 ]
 
 
@@ -93,3 +107,42 @@ def create(config: dict[str, Any] | None = None, **kwargs: Any) -> Axiospy:
     merged = dict(config or {})
     merged.update(kwargs)
     return Axiospy(config=merged)
+
+
+_default_instance = create()
+
+def request(method: str, url: str, **kwargs: Any) -> Response:
+    return _default_instance.request(method, url, **kwargs)
+
+def get(url: str, **kwargs: Any) -> Response:
+    return _default_instance.get(url, **kwargs)
+
+def post(url: str, **kwargs: Any) -> Response:
+    return _default_instance.post(url, **kwargs)
+
+def put(url: str, **kwargs: Any) -> Response:
+    return _default_instance.put(url, **kwargs)
+
+def patch(url: str, **kwargs: Any) -> Response:
+    return _default_instance.patch(url, **kwargs)
+
+def delete(url: str, **kwargs: Any) -> Response:
+    return _default_instance.delete(url, **kwargs)
+
+async def async_request(method: str, url: str, **kwargs: Any) -> Response:
+    return await _default_instance.async_request(method, url, **kwargs)
+
+async def async_get(url: str, **kwargs: Any) -> Response:
+    return await _default_instance.async_get(url, **kwargs)
+
+async def async_post(url: str, **kwargs: Any) -> Response:
+    return await _default_instance.async_post(url, **kwargs)
+
+async def async_put(url: str, **kwargs: Any) -> Response:
+    return await _default_instance.async_put(url, **kwargs)
+
+async def async_patch(url: str, **kwargs: Any) -> Response:
+    return await _default_instance.async_patch(url, **kwargs)
+
+async def async_delete(url: str, **kwargs: Any) -> Response:
+    return await _default_instance.async_delete(url, **kwargs)

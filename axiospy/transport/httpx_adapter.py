@@ -29,15 +29,23 @@ class HttpxTransport(BaseTransport):
         return self._sync_client
 
     def _get_async_client(self) -> httpx.AsyncClient:
-        if self._async_client is None:
+        import asyncio
+        loop = asyncio.get_running_loop()
+        if not hasattr(self, "_async_client_loop") or self._async_client_loop is not loop:
             self._async_client = httpx.AsyncClient()
+            self._async_client_loop = loop
         return self._async_client
 
     def _build_response(self, raw: httpx.Response, request: PreparedRequest) -> Response:
-        try:
-            data = raw.json()
-        except Exception:
-            data = raw.text
+        data = None
+        if not request.stream:
+            try:
+                data = raw.json()
+            except Exception:
+                try:
+                    data = raw.text
+                except Exception:
+                    pass
         return Response(
             status_code=raw.status_code,
             headers=dict(raw.headers),
@@ -61,15 +69,17 @@ class HttpxTransport(BaseTransport):
         """
         client = self._get_sync_client()
         try:
-            raw = client.request(
+            req = client.build_request(
                 method=request.method,
                 url=request.url,
                 headers=request.headers,
                 params=request.params,
                 content=request.data,
                 json=request.json,
+                files=request.files,
                 timeout=request.timeout,
             )
+            raw = client.send(req, stream=request.stream)
             return self._build_response(raw, request)
         except httpx.TimeoutException as exc:
             raise TimeoutError(str(exc)) from exc
@@ -91,15 +101,17 @@ class HttpxTransport(BaseTransport):
         """
         client = self._get_async_client()
         try:
-            raw = await client.request(
+            req = client.build_request(
                 method=request.method,
                 url=request.url,
                 headers=request.headers,
                 params=request.params,
                 content=request.data,
                 json=request.json,
+                files=request.files,
                 timeout=request.timeout,
             )
+            raw = await client.send(req, stream=request.stream)
             return self._build_response(raw, request)
         except httpx.TimeoutException as exc:
             raise TimeoutError(str(exc)) from exc

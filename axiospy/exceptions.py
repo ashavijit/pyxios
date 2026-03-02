@@ -7,6 +7,7 @@ __all__ = [
     "CancelError",
     "RetryError",
     "InterceptorError",
+    "HTTPStatusError",
 ]
 
 
@@ -36,3 +37,11 @@ class RetryError(AxiospyError):
 
 class InterceptorError(AxiospyError):
     """Raised when an interceptor fails during execution."""
+
+
+class HTTPStatusError(AxiospyError):
+    """Raised when a response indicates an HTTP error (4xx or 5xx)."""
+
+    def __init__(self, message: str, response: Any) -> None:
+        super().__init__(message)
+        self.response = response

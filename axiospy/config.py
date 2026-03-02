@@ -21,6 +21,8 @@ class RequestConfig(TypedDict, total=False):
     params: dict[str, Any]
     data: Any
     json: Any
+    files: Any
+    stream: bool
     timeout: int | float
     max_retries: int
     retry_strategy: Any
