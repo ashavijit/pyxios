@@ -4,7 +4,7 @@ import time
 from typing import TYPE_CHECKING, Any, Awaitable, Callable
 
 if TYPE_CHECKING:
-    from axiospy.client import Axiospy
+    from axios_python.client import AxiosPython
 
 __all__ = [
     "CachePlugin",
@@ -27,11 +27,11 @@ class CachePlugin:
         self._max_size = max_size
         self._store: dict[str, tuple[float, Any]] = {}
 
-    def install(self, client: Axiospy) -> None:
+    def install(self, client: AxiosPython) -> None:
         """Register a cache middleware on the client.
 
         Args:
-            client: The Axiospy client to extend.
+            client: The AxiosPython client to extend.
         """
         plugin = self
 

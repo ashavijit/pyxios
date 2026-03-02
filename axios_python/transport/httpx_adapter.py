@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import httpx
 
-from axiospy.exceptions import NetworkError, TimeoutError
-from axiospy.request import PreparedRequest
-from axiospy.response import Response
-from axiospy.transport.base import BaseTransport
+from axios_python.exceptions import NetworkError, TimeoutError
+from axios_python.request import PreparedRequest
+from axios_python.response import Response
+from axios_python.transport.base import BaseTransport
 
 __all__ = [
     "HttpxTransport",
@@ -61,7 +61,7 @@ class HttpxTransport(BaseTransport):
             request: The prepared request to dispatch.
 
         Returns:
-            A axiospy Response wrapping the httpx response.
+            A axios_python Response wrapping the httpx response.
 
         Raises:
             TimeoutError: If the request exceeds the configured timeout.
@@ -93,7 +93,7 @@ class HttpxTransport(BaseTransport):
             request: The prepared request to dispatch.
 
         Returns:
-            A axiospy Response wrapping the httpx response.
+            A axios_python Response wrapping the httpx response.
 
         Raises:
             TimeoutError: If the request exceeds the configured timeout.

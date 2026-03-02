@@ -2,37 +2,37 @@ from __future__ import annotations
 
 from typing import Any, Awaitable, Callable
 
-from axiospy.cancel.token import CancelToken
-from axiospy.config import merge_config
-from axiospy.interceptors.manager import InterceptorManager
-from axiospy.middleware.manager import MiddlewareManager
-from axiospy.plugins.base import Plugin
-from axiospy.request import PreparedRequest
-from axiospy.response import Response
-from axiospy.retry.engine import RetryEngine
-from axiospy.retry.strategy import RetryStrategy
-from axiospy.transport.base import BaseTransport
-from axiospy.transport.httpx_adapter import HttpxTransport
-from axiospy.utils.async_utils import run_sync
+from axios_python.cancel.token import CancelToken
+from axios_python.config import merge_config
+from axios_python.interceptors.manager import InterceptorManager
+from axios_python.middleware.manager import MiddlewareManager
+from axios_python.plugins.base import Plugin
+from axios_python.request import PreparedRequest
+from axios_python.response import Response
+from axios_python.retry.engine import RetryEngine
+from axios_python.retry.strategy import RetryStrategy
+from axios_python.transport.base import BaseTransport
+from axios_python.transport.httpx_adapter import HttpxTransport
+from axios_python.utils.async_utils import run_sync
 
 __all__ = [
-    "Axiospy",
+    "AxiosPython",
 ]
 
 MiddlewareFn = Callable[[dict[str, Any], Callable[..., Awaitable[Any]]], Awaitable[Any]]
 
 
-class Axiospy:
-    """The main axiospy HTTP client.
+class AxiosPython:
+    """The main axios_python HTTP client.
 
     Each instance maintains its own configuration, interceptors, middleware
-    stack, and transport.  Create instances via :func:`axiospy.create`.
+    stack, and transport.  Create instances via :func:`axios_python.create`.
 
     Args:
         config: Base configuration dict applied to every request made
             through this instance.
         transport: An optional custom transport adapter.  Defaults to
-            :class:`~axiospy.transport.httpx_adapter.HttpxTransport`.
+            :class:`~axios_python.transport.httpx_adapter.HttpxTransport`.
     """
 
     def __init__(
@@ -56,7 +56,7 @@ class Axiospy:
         """The base configuration for this client instance."""
         return self._config
 
-    def use(self, middleware: MiddlewareFn) -> Axiospy:
+    def use(self, middleware: MiddlewareFn) -> AxiosPython:
         """Register a middleware function.
 
         Args:
@@ -69,11 +69,11 @@ class Axiospy:
         self._middleware.use(middleware)
         return self
 
-    def plugin(self, p: Plugin) -> Axiospy:
+    def plugin(self, p: Plugin) -> AxiosPython:
         """Install a plugin onto this client.
 
         Args:
-            p: A plugin implementing the :class:`~axiospy.plugins.base.Plugin`
+            p: A plugin implementing the :class:`~axios_python.plugins.base.Plugin`
                 protocol.
 
         Returns:
@@ -184,7 +184,7 @@ class Axiospy:
                 json, timeout, cancel_token, etc.).
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         config = self._build_request_config(method, url, **kwargs)
         return self._dispatch_sync(config)
@@ -199,7 +199,7 @@ class Axiospy:
                 json, timeout, cancel_token, etc.).
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         config = self._build_request_config(method, url, **kwargs)
         return await self._dispatch_async(config)
@@ -212,7 +212,7 @@ class Axiospy:
             **kwargs: Additional config overrides.
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         return self.request("GET", url, **kwargs)
 
@@ -224,7 +224,7 @@ class Axiospy:
             **kwargs: Additional config overrides.
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         return await self.async_request("GET", url, **kwargs)
 
@@ -236,7 +236,7 @@ class Axiospy:
             **kwargs: Additional config overrides.
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         return self.request("POST", url, **kwargs)
 
@@ -248,7 +248,7 @@ class Axiospy:
             **kwargs: Additional config overrides.
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         return await self.async_request("POST", url, **kwargs)
 
@@ -260,7 +260,7 @@ class Axiospy:
             **kwargs: Additional config overrides.
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         return self.request("PUT", url, **kwargs)
 
@@ -272,7 +272,7 @@ class Axiospy:
             **kwargs: Additional config overrides.
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         return await self.async_request("PUT", url, **kwargs)
 
@@ -284,7 +284,7 @@ class Axiospy:
             **kwargs: Additional config overrides.
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         return self.request("PATCH", url, **kwargs)
 
@@ -296,7 +296,7 @@ class Axiospy:
             **kwargs: Additional config overrides.
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         return await self.async_request("PATCH", url, **kwargs)
 
@@ -308,7 +308,7 @@ class Axiospy:
             **kwargs: Additional config overrides.
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         return self.request("DELETE", url, **kwargs)
 
@@ -320,7 +320,7 @@ class Axiospy:
             **kwargs: Additional config overrides.
 
         Returns:
-            A :class:`~axiospy.response.Response` object.
+            A :class:`~axios_python.response.Response` object.
         """
         return await self.async_request("DELETE", url, **kwargs)
 
@@ -334,15 +334,15 @@ class Axiospy:
 
     def __repr__(self) -> str:
         base = self._config.get("base_url", "")
-        return f"<Axiospy base_url={base!r}>"
+        return f"<AxiosPython base_url={base!r}>"
 
-    def __enter__(self) -> Axiospy:
+    def __enter__(self) -> AxiosPython:
         return self
 
     def __exit__(self, *args: Any) -> None:
         self.close()
 
-    async def __aenter__(self) -> Axiospy:
+    async def __aenter__(self) -> AxiosPython:
         return self
 
     async def __aexit__(self, *args: Any) -> None:

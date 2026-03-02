@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-from axiospy.exceptions import InterceptorError
+from axios_python.exceptions import InterceptorError
 
 __all__ = [
     "InterceptorChain",

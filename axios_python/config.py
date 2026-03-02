@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any, TypedDict
 
-from axiospy.defaults import DEFAULT_CONFIG
-from axiospy.utils.merge import deep_merge
+from axios_python.defaults import DEFAULT_CONFIG
+from axios_python.utils.merge import deep_merge
 
 __all__ = [
     "RequestConfig",

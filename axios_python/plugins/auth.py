@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
-    from axiospy.client import Axiospy
+    from axios_python.client import AxiosPython
 
 __all__ = [
     "AuthPlugin",
@@ -32,11 +32,11 @@ class AuthPlugin:
         self._token_provider = token_provider
         self._scheme = scheme
 
-    def install(self, client: Axiospy) -> None:
+    def install(self, client: AxiosPython) -> None:
         """Register a request interceptor that sets the Authorization header.
 
         Args:
-            client: The Axiospy client to extend.
+            client: The AxiosPython client to extend.
         """
         client.interceptors.request.use(self._inject_auth)
 

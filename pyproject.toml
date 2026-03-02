@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "axiospy"
+name = "axios-python"
 version = "0.1.0"
 description = "A developer-experience-first HTTP client for Python, inspired by Axios."
 readme = "README.md"
@@ -37,8 +37,8 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ashavijit/axiospy"
-Repository = "https://github.com/ashavijit/axiospy"
+Homepage = "https://github.com/ashavijit/axios_python"
+Repository = "https://github.com/ashavijit/axios_python"
 
 [tool.hatch.build.targets.wheel]
-packages = ["axiospy"]
+packages = ["axios_python"]

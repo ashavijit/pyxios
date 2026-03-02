@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 __all__ = [
-    "AxiospyError",
+    "AxiosPythonError",
     "TimeoutError",
     "NetworkError",
     "CancelError",
@@ -11,23 +11,23 @@ __all__ = [
 ]
 
 
-class AxiospyError(Exception):
-    """Base exception for all axiospy errors."""
+class AxiosPythonError(Exception):
+    """Base exception for all axios_python errors."""
 
 
-class TimeoutError(AxiospyError):
+class TimeoutError(AxiosPythonError):
     """Raised when a request exceeds the configured timeout."""
 
 
-class NetworkError(AxiospyError):
+class NetworkError(AxiosPythonError):
     """Raised when a network-level failure occurs."""
 
 
-class CancelError(AxiospyError):
+class CancelError(AxiosPythonError):
     """Raised when a request is cancelled via a CancelToken."""
 
 
-class RetryError(AxiospyError):
+class RetryError(AxiosPythonError):
     """Raised when all retry attempts have been exhausted."""
 
     def __init__(self, message: str, last_exception: Exception | None = None) -> None:
@@ -35,11 +35,11 @@ class RetryError(AxiospyError):
         self.last_exception = last_exception
 
 
-class InterceptorError(AxiospyError):
+class InterceptorError(AxiosPythonError):
     """Raised when an interceptor fails during execution."""
 
 
-class HTTPStatusError(AxiospyError):
+class HTTPStatusError(AxiosPythonError):
     """Raised when a response indicates an HTTP error (4xx or 5xx)."""
 
     def __init__(self, message: str, response: Any) -> None:

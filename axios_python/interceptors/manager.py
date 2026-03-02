@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-from axiospy.interceptors.chain import InterceptorChain
+from axios_python.interceptors.chain import InterceptorChain
 
 __all__ = [
     "InterceptorManager",

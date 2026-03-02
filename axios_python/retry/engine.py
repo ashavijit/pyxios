@@ -4,8 +4,8 @@ import asyncio
 import time
 from typing import Any, Awaitable, Callable, TypeVar
 
-from axiospy.exceptions import RetryError
-from axiospy.retry.strategy import ExponentialBackoff, RetryStrategy
+from axios_python.exceptions import RetryError
+from axios_python.retry.strategy import ExponentialBackoff, RetryStrategy
 
 __all__ = [
     "RetryEngine",
@@ -17,8 +17,8 @@ RetryPredicate = Callable[[Exception], bool]
 
 
 def _default_retry_on(exc: Exception) -> bool:
-    from axiospy.exceptions import NetworkError, TimeoutError as AxiospyTimeoutError
-    return isinstance(exc, (NetworkError, AxiospyTimeoutError))
+    from axios_python.exceptions import NetworkError, TimeoutError as AxiosPythonTimeoutError
+    return isinstance(exc, (NetworkError, AxiosPythonTimeoutError))
 
 
 class RetryEngine:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from axiospy.exceptions import CancelError
+from axios_python.exceptions import CancelError
 
 __all__ = [
     "CancelToken",

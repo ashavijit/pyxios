@@ -1,14 +1,14 @@
-# axiospy
+# axios_python
 
-[![PyPI version](https://img.shields.io/pypi/v/axiospy.svg)](https://pypi.org/project/axiospy/)
-[![Python versions](https://img.shields.io/pypi/pyversions/axiospy.svg)](https://pypi.org/project/axiospy/)
+[![PyPI version](https://img.shields.io/pypi/v/axios_python.svg)](https://pypi.org/project/axios_python/)
+[![Python versions](https://img.shields.io/pypi/pyversions/axios_python.svg)](https://pypi.org/project/axios_python/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 A developer-experience-first HTTP client for Python, heavily inspired by [Axios](https://axios-http.com/).
 
 The Python ecosystem has amazing HTTP transport libraries (`requests`, `httpx`, `aiohttp`), but they are often focused purely on sending requests and getting responses. Modern applications need a **network orchestration layer**—features like request lifecycle hooks, middleware, interceptors, isolated client instances, request cancellation, and unified synchronous/asynchronous developer experience. 
 
-`axiospy` brings the elegant, feature-rich Axios model to Python, built natively on top of `httpx`.
+`axios_python` brings the elegant, feature-rich Axios model to Python, built natively on top of `httpx`.
 
 ---
 
@@ -31,7 +31,7 @@ The Python ecosystem has amazing HTTP transport libraries (`requests`, `httpx`, 
 Install using `pip`:
 
 ```bash
-pip install axiospy
+pip install axios_python
 ```
 
 Requires Python 3.10+.
@@ -43,13 +43,13 @@ Requires Python 3.10+.
 ### Basic Synchronous Usage
 
 ```python
-import axiospy
+import axios_python
 
 # Zero-setup module level request
-response = axiospy.get("https://httpbin.org/get", params={"query": "python"})
+response = axios_python.get("https://httpbin.org/get", params={"query": "python"})
 
 # Or create an isolated instance with default configuration
-api = axiospy.create({
+api = axios_python.create({
     "base_url": "https://httpbin.org",
     "timeout": 10,
     "headers": {
@@ -67,19 +67,19 @@ if response.ok:
 
 ### Asynchronous Native
 
-`axiospy` treats async as a first-class citizen. Just prefix method names with `async_`.
+`axios_python` treats async as a first-class citizen. Just prefix method names with `async_`.
 
 ```python
 import asyncio
-import axiospy
+import axios_python
 
 async def fetch_data():
     # Non-blocking async call via instance
-    api = axiospy.create({"base_url": "https://httpbin.org"})
+    api = axios_python.create({"base_url": "https://httpbin.org"})
     response = await api.async_get("/delay/2")
     
     # Or module level
-    response = await axiospy.async_get("https://httpbin.org/delay/2")
+    response = await axios_python.async_get("https://httpbin.org/delay/2")
     print(response.data)
 
 asyncio.run(fetch_data())
@@ -93,7 +93,7 @@ Multipart file uploads are supported out of the box matching the `requests` inte
 with open("report.csv", "rb") as f:
     # Files can be passed as an open file handle or a tuple mapping
     files = {"file": ("report.csv", f, "text/csv")}
-    response = axiospy.post("https://httpbin.org/post", files=files)
+    response = axios_python.post("https://httpbin.org/post", files=files)
 ```
 
 ### Streaming Responses
@@ -101,15 +101,15 @@ with open("report.csv", "rb") as f:
 For large files or continuous data streams, use `stream=True`. The response is exposed as a context manager for both sync and async calls.
 
 ```python
-import axiospy
+import axios_python
 
 # Synchronous execution
-with axiospy.get("https://httpbin.org/stream-bytes/100", stream=True) as response:
+with axios_python.get("https://httpbin.org/stream-bytes/100", stream=True) as response:
     for chunk in response.iter_bytes(chunk_size=10):
         print(len(chunk))
 
 # Asynchronous execution in an async function
-async with await axiospy.async_get("https://.../stream", stream=True) as response:
+async with await axios_python.async_get("https://.../stream", stream=True) as response:
     async for line in response.aiter_lines():
         print(line)
 ```
@@ -123,7 +123,7 @@ async with await axiospy.async_get("https://.../stream", stream=True) as respons
 Interceptors allow you to tap into the lifecycle of a request or response. They run sequentially.
 
 ```python
-api = axiospy.create({"base_url": "https://api.myapp.com"})
+api = axios_python.create({"base_url": "https://api.myapp.com"})
 
 # Add a request interceptor
 def authorize_request(config):
@@ -168,9 +168,9 @@ api.use(logger_middleware)
 Temporary network issues shouldn't hard-crash your app. Provide a retry strategy when creating your client.
 
 ```python
-from axiospy import ExponentialBackoff
+from axios_python import ExponentialBackoff
 
-api = axiospy.create({
+api = axios_python.create({
     "base_url": "https://httpbin.org",
     "max_retries": 3,
     "retry_strategy": ExponentialBackoff(base=1.0, multiplier=2.0, max_delay=10.0),
@@ -184,7 +184,7 @@ By default, this retries on Network Errors and Timeouts.
 Use a `CancelToken` to abort long-running requests or cancel requests when a user navigates away.
 
 ```python
-from axiospy import CancelToken
+from axios_python import CancelToken
 import threading
 import time
 
@@ -193,7 +193,7 @@ token = CancelToken()
 def background_fetch():
     try:
         api.get("/delay/10", cancel_token=token)
-    except axiospy.CancelError as e:
+    except axios_python.CancelError as e:
         print(f"Request aborted: {e}")
 
 threading.Thread(target=background_fetch).start()
@@ -206,14 +206,14 @@ token.cancel(reason="User clicked 'Stop'")
 
 ## Plugins
 
-`axiospy` ships with first-party plugins for common use-cases.
+`axios_python` ships with first-party plugins for common use-cases.
 
 ### Authentication Plugin
 
 Automatically injects `Authorization` headers. Supports static tokens or dynamic providers.
 
 ```python
-from axiospy import AuthPlugin
+from axios_python import AuthPlugin
 
 api.plugin(AuthPlugin(scheme="Bearer", token="super-secret-key"))
 
@@ -226,7 +226,7 @@ api.plugin(AuthPlugin(scheme="Bearer", token="super-secret-key"))
 In-memory TTL cache for `GET` requests to reduce redundant network load.
 
 ```python
-from axiospy import CachePlugin
+from axios_python import CachePlugin
 
 # Cache GET responses for 120 seconds, max 256 items
 api.plugin(CachePlugin(ttl=120, max_size=256))
@@ -238,7 +238,7 @@ Standardized `logging` for requests and responses out of the box.
 
 ```python
 import logging
-from axiospy import LoggerPlugin
+from axios_python import LoggerPlugin
 
 logging.basicConfig(level=logging.INFO)
 api.plugin(LoggerPlugin(level=logging.INFO))
@@ -248,7 +248,7 @@ api.plugin(LoggerPlugin(level=logging.INFO))
 
 ## Configuration Reference
 
-You can pass the following properties to `axiospy.create(config)` or as overrides to individual request methods (`api.get("/url", **kwargs)`):
+You can pass the following properties to `axios_python.create(config)` or as overrides to individual request methods (`api.get("/url", **kwargs)`):
 
 | Property | Type | Description |
 |----------|------|-------------|
@@ -270,26 +270,26 @@ You can pass the following properties to `axiospy.create(config)` or as override
 
 ## Error Handling
 
-`axiospy` provides strongly typed exceptions extending from `AxiospyError`. The `Response` object provides a `.raise_for_status()` method exactly like `requests`.
+`axios_python` provides strongly typed exceptions extending from `AxiosPythonError`. The `Response` object provides a `.raise_for_status()` method exactly like `requests`.
 
 ```python
-import axiospy
+import axios_python
 
 try:
-    response = axiospy.get("https://httpbin.org/status/404")
+    response = axios_python.get("https://httpbin.org/status/404")
     response.raise_for_status()
-except axiospy.HTTPStatusError as e:
+except axios_python.HTTPStatusError as e:
     print(f"Request failed with status code {e.response.status_code}")
-except axiospy.TimeoutError:
+except axios_python.TimeoutError:
     print("Request timed out.")
-except axiospy.NetworkError:
+except axios_python.NetworkError:
     print("Unable to connect to the server.")
-except axiospy.RetryError:
+except axios_python.RetryError:
     print("All retry attempts failed.")
-except axiospy.CancelError:
+except axios_python.CancelError:
     print("Request was manually cancelled.")
-except axiospy.AxiospyError as e:
-    print(f"A general axiospy error occurred: {e}")
+except axios_python.AxiosPythonError as e:
+    print(f"A general axios_python error occurred: {e}")
 ```
 
 ---
@@ -301,17 +301,17 @@ except axiospy.AxiospyError as e:
 You aren't locked into `httpx`. You can build a custom transport adapter by implementing the `BaseTransport` abstract class.
 
 ```python
-from axiospy import Axiospy, BaseTransport
+from axios_python import AxiosPython, BaseTransport
 
 class MockTransport(BaseTransport):
     def send(self, request):
-        return axiospy.Response(200, {}, {"mock": "data"}, request)
+        return axios_python.Response(200, {}, {"mock": "data"}, request)
 
     async def send_async(self, request):
         return self.send(request)
 
-# Pass the custom transport directly to the Axiospy constructor
-api = Axiospy(config={"base_url": "mock://"}, transport=MockTransport())
+# Pass the custom transport directly to the AxiosPython constructor
+api = AxiosPython(config={"base_url": "mock://"}, transport=MockTransport())
 ```
 
 ---

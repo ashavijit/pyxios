@@ -4,13 +4,13 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from axiospy.client import Axiospy
+    from axios_python.client import AxiosPython
 
 __all__ = [
     "LoggerPlugin",
 ]
 
-_logger = logging.getLogger("axiospy")
+_logger = logging.getLogger("axios_python")
 
 
 class LoggerPlugin:
@@ -29,11 +29,11 @@ class LoggerPlugin:
         self._level = level
         self._logger = logger or _logger
 
-    def install(self, client: Axiospy) -> None:
+    def install(self, client: AxiosPython) -> None:
         """Register request and response interceptors for logging.
 
         Args:
-            client: The Axiospy client to extend.
+            client: The AxiosPython client to extend.
         """
         client.interceptors.request.use(self._log_request)
         client.interceptors.response.use(self._log_response)

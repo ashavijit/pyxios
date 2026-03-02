@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, AsyncIterator, Iterator
 
-from axiospy.request import PreparedRequest
+from axios_python.request import PreparedRequest
 
 __all__ = [
     "Response",
@@ -71,7 +71,7 @@ class Response:
             The response object.
         """
         if not self.ok:
-            from axiospy.exceptions import HTTPStatusError
+            from axios_python.exceptions import HTTPStatusError
             reason = getattr(self._raw, "reason_phrase", "Unknown Reason")
             message = f"{self.status_code} {reason} for url: {self.request.url}"
             raise HTTPStatusError(message, response=self)

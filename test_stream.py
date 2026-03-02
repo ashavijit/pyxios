@@ -1,16 +1,16 @@
 import asyncio
-import axiospy
+import axios_python
 
 def test_stream_sync():
     print("--- Testing Stream Sync ---")
     
     # 1. Non-stream request (parity check)
-    res_normal = axiospy.get("https://httpbin.org/get")
+    res_normal = axios_python.get("https://httpbin.org/get")
     assert res_normal.data is not None
     print("Normal GET OK")
 
     # 2. Stream request
-    with axiospy.get("https://httpbin.org/stream-bytes/100", stream=True) as res:
+    with axios_python.get("https://httpbin.org/stream-bytes/100", stream=True) as res:
         print("Stream GET response status:", res.status_code)
         assert res.data is None
         bytes_received = 0
@@ -19,7 +19,7 @@ def test_stream_sync():
         print(f"Stream iter_bytes OK, read {bytes_received} bytes")
         
     # 3. Stream text and lines
-    with axiospy.get("https://httpbin.org/get", stream=True) as res:
+    with axios_python.get("https://httpbin.org/get", stream=True) as res:
         text_content = ""
         for text in res.iter_text(chunk_size=128):
             text_content += text
@@ -28,7 +28,7 @@ def test_stream_sync():
 async def test_stream_async():
     print("\n--- Testing Stream Async ---")
     
-    async with await axiospy.async_get("https://httpbin.org/stream-bytes/100", stream=True) as res:
+    async with await axios_python.async_get("https://httpbin.org/stream-bytes/100", stream=True) as res:
         print("Async Stream GET response status:", res.status_code)
         assert res.data is None
         bytes_received = 0

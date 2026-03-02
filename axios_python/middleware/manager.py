@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Awaitable, Callable
 
-from axiospy.middleware.pipeline import Pipeline
+from axios_python.middleware.pipeline import Pipeline
 
 __all__ = [
     "MiddlewareManager",

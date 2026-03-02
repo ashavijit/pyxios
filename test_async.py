@@ -1,8 +1,8 @@
 import asyncio
-import axiospy
+import axios_python
 
 async def main():
-    api = axiospy.create({"base_url": "https://httpbin.org", "timeout": 10})
+    api = axios_python.create({"base_url": "https://httpbin.org", "timeout": 10})
     res = await api.async_get("/get")
     print("Async status_code:", res.status_code)
     print("Async ok:", res.ok)

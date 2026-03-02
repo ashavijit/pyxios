@@ -4,8 +4,8 @@ import abc
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from axiospy.request import PreparedRequest
-    from axiospy.response import Response
+    from axios_python.request import PreparedRequest
+    from axios_python.response import Response
 
 __all__ = [
     "BaseTransport",
@@ -27,7 +27,7 @@ class BaseTransport(abc.ABC):
             request: The fully prepared request to dispatch.
 
         Returns:
-            A axiospy Response object.
+            A axios_python Response object.
         """
         ...
 
@@ -39,7 +39,7 @@ class BaseTransport(abc.ABC):
             request: The fully prepared request to dispatch.
 
         Returns:
-            A axiospy Response object.
+            A axios_python Response object.
         """
         ...
 

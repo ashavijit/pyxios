@@ -1,13 +1,13 @@
-"""axiospy - A developer-experience-first HTTP client for Python.
+"""axios_python - A developer-experience-first HTTP client for Python.
 
 Provides an Axios-inspired interface with interceptors, middleware,
 retry, cancellation tokens, and a plugin system on top of httpx.
 
 Quick start::
 
-    import axiospy
+    import axios_python
 
-    api = axiospy.create({"base_url": "https://api.example.com"})
+    api = axios_python.create({"base_url": "https://api.example.com"})
     response = api.get("/users")
     print(response.data)
 """
@@ -16,42 +16,42 @@ from __future__ import annotations
 
 from typing import Any
 
-from axiospy.cancel.token import CancelToken
-from axiospy.client import Axiospy
-from axiospy.config import RequestConfig, merge_config
-from axiospy.exceptions import (
+from axios_python.cancel.token import CancelToken
+from axios_python.client import AxiosPython
+from axios_python.config import RequestConfig, merge_config
+from axios_python.exceptions import (
     CancelError,
     InterceptorError,
     NetworkError,
-    AxiospyError,
+    AxiosPythonError,
     RetryError,
     TimeoutError,
     HTTPStatusError,
 )
-from axiospy.plugins.auth import AuthPlugin
-from axiospy.plugins.base import Plugin
-from axiospy.plugins.cache import CachePlugin
-from axiospy.plugins.logger import LoggerPlugin
-from axiospy.request import PreparedRequest
-from axiospy.response import Response
-from axiospy.retry.strategy import (
+from axios_python.plugins.auth import AuthPlugin
+from axios_python.plugins.base import Plugin
+from axios_python.plugins.cache import CachePlugin
+from axios_python.plugins.logger import LoggerPlugin
+from axios_python.request import PreparedRequest
+from axios_python.response import Response
+from axios_python.retry.strategy import (
     ExponentialBackoff,
     FixedDelay,
     LinearBackoff,
     RetryStrategy,
 )
-from axiospy.transport.base import BaseTransport
-from axiospy.transport.httpx_adapter import HttpxTransport
+from axios_python.transport.base import BaseTransport
+from axios_python.transport.httpx_adapter import HttpxTransport
 
 __all__ = [
     "create",
-    "Axiospy",
+    "AxiosPython",
     "CancelToken",
     "Response",
     "PreparedRequest",
     "RequestConfig",
     "merge_config",
-    "AxiospyError",
+    "AxiosPythonError",
     "TimeoutError",
     "NetworkError",
     "CancelError",
@@ -83,8 +83,8 @@ __all__ = [
 ]
 
 
-def create(config: dict[str, Any] | None = None, **kwargs: Any) -> Axiospy:
-    """Create a new axiospy client instance.
+def create(config: dict[str, Any] | None = None, **kwargs: Any) -> AxiosPython:
+    """Create a new axios_python client instance.
 
     This is the primary entry point for the library.
 
@@ -94,11 +94,11 @@ def create(config: dict[str, Any] | None = None, **kwargs: Any) -> Axiospy:
         **kwargs: Additional config keys merged into *config*.
 
     Returns:
-        A configured :class:`Axiospy` client instance.
+        A configured :class:`AxiosPython` client instance.
 
     Example::
 
-        api = axiospy.create({
+        api = axios_python.create({
             "base_url": "https://api.example.com",
             "timeout": 10,
         })
@@ -106,7 +106,7 @@ def create(config: dict[str, Any] | None = None, **kwargs: Any) -> Axiospy:
     """
     merged = dict(config or {})
     merged.update(kwargs)
-    return Axiospy(config=merged)
+    return AxiosPython(config=merged)
 
 
 _default_instance = create()
