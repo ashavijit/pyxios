@@ -85,6 +85,33 @@ async def fetch_data():
 asyncio.run(fetch_data())
 ```
 
+### Concurrent Requests
+
+Run multiple requests simultaneously using `all()` and unpack the results cleanly with the `spread()` callback wrapper, just like in JavaScript Axios.
+
+```python
+import asyncio
+from axios_python import create, all, spread
+
+api = create({"base_url": "https://api.github.com"})
+
+async def fetch_multiple():
+    # Fetch user profile and repos concurrently
+    results = await all([
+        api.async_get("/users/octocat"),
+        api.async_get("/users/octocat/repos")
+    ])
+
+    @spread
+    def process(profile, repos):
+        print(f"User: {profile.json()['name']}")
+        print(f"Repos: {len(repos.json())}")
+
+    process(results)
+
+asyncio.run(fetch_multiple())
+```
+
 ### File Uploads
 
 Multipart file uploads are supported out of the box matching the `requests` interface.
@@ -139,6 +166,27 @@ def unwrap_data(response):
     return response
 
 api.interceptors.response.use(unwrap_data)
+```
+
+### Data Transformation
+
+In addition to interceptors, you can use `transform_request` and `transform_response` to modify the payload directly before sending or after receiving.
+
+```python
+import json
+
+def stringify_json(data, headers):
+    if isinstance(data, dict):
+        headers['Content-Type'] = 'application/json'
+        return json.dumps(data)
+    return data
+
+api = axios_python.create({
+    "transform_request": [stringify_json]
+})
+
+# Dictionary sent will automatically be stringified using our transform
+api.post("/submit", data={"key": "value"})
 ```
 
 ### Middleware
@@ -253,7 +301,7 @@ You can pass the following properties to `axios_python.create(config)` or as ove
 | Property | Type | Description |
 |----------|------|-------------|
 | `base_url` | `str` | Base URL attached to relative paths. |
-| `method` | `str` | HTTP Method (e.g., `"GET"`, `"POST"`). |
+| `method` | `str` | HTTP Method (e.g., `"GET"`, `"POST"`, `"HEAD"`, `"OPTIONS"`). |
 | `url` | `str` | The target path or absolute URL. |
 | `headers` | `dict` | Dictionary of HTTP headers. |
 | `params` | `dict` | URL Query parameters. |
@@ -262,6 +310,9 @@ You can pass the following properties to `axios_python.create(config)` or as ove
 | `files` | `Any` | Multipart-encoded files dictionary. |
 | `stream` | `bool` | Stream the response (Default: False). |
 | `timeout` | `float` | Max seconds to wait for a response (Default: 30). |
+| `follow_redirects` | `bool` | Whether to automatically follow HTTP redirects (Default: True). |
+| `transform_request` | `list[Callable]`| Functions to manipulate data/headers before sending. |
+| `transform_response` | `list[Callable]`| Functions to manipulate response data before returning. |
 | `max_retries` | `int` | Maximum retry attempts on failure (Default: 0). |
 | `retry_strategy` | `RetryStrategy` | Backoff class instance (e.g., `ExponentialBackoff`). |
 | `cancel_token` | `CancelToken` | Token to cancel the request mid-flight. |
