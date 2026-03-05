@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Avijit
+# Licensed under the MIT License.
+
 from __future__ import annotations
 
 import httpx
@@ -13,11 +16,6 @@ __all__ = [
 
 
 class HttpxTransport(BaseTransport):
-    """Transport adapter backed by httpx.
-
-    Uses ``httpx.Client`` for synchronous calls and ``httpx.AsyncClient``
-    for asynchronous calls.
-    """
 
     def __init__(self) -> None:
         self._sync_client: httpx.Client | None = None
@@ -55,18 +53,6 @@ class HttpxTransport(BaseTransport):
         )
 
     def send(self, request: PreparedRequest) -> Response:
-        """Send a synchronous HTTP request via httpx.
-
-        Args:
-            request: The prepared request to dispatch.
-
-        Returns:
-            A axios_python Response wrapping the httpx response.
-
-        Raises:
-            TimeoutError: If the request exceeds the configured timeout.
-            NetworkError: If a connection-level error occurs.
-        """
         client = self._get_sync_client()
         try:
             req = client.build_request(
@@ -79,7 +65,11 @@ class HttpxTransport(BaseTransport):
                 files=request.files,
                 timeout=request.timeout,
             )
-            raw = client.send(req, stream=request.stream)
+            raw = client.send(
+                req,
+                stream=request.stream,
+                follow_redirects=request.follow_redirects,
+            )
             return self._build_response(raw, request)
         except httpx.TimeoutException as exc:
             raise TimeoutError(str(exc)) from exc
@@ -87,18 +77,6 @@ class HttpxTransport(BaseTransport):
             raise NetworkError(str(exc)) from exc
 
     async def send_async(self, request: PreparedRequest) -> Response:
-        """Send an asynchronous HTTP request via httpx.
-
-        Args:
-            request: The prepared request to dispatch.
-
-        Returns:
-            A axios_python Response wrapping the httpx response.
-
-        Raises:
-            TimeoutError: If the request exceeds the configured timeout.
-            NetworkError: If a connection-level error occurs.
-        """
         client = self._get_async_client()
         try:
             req = client.build_request(
@@ -111,7 +89,11 @@ class HttpxTransport(BaseTransport):
                 files=request.files,
                 timeout=request.timeout,
             )
-            raw = await client.send(req, stream=request.stream)
+            raw = await client.send(
+                req,
+                stream=request.stream,
+                follow_redirects=request.follow_redirects,
+            )
             return self._build_response(raw, request)
         except httpx.TimeoutException as exc:
             raise TimeoutError(str(exc)) from exc
@@ -119,13 +101,11 @@ class HttpxTransport(BaseTransport):
             raise NetworkError(str(exc)) from exc
 
     def close(self) -> None:
-        """Close the synchronous httpx client."""
         if self._sync_client is not None:
             self._sync_client.close()
             self._sync_client = None
 
     async def aclose(self) -> None:
-        """Close the asynchronous httpx client."""
         if self._async_client is not None:
             await self._async_client.aclose()
             self._async_client = None

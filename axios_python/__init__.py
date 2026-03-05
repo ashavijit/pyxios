@@ -1,16 +1,5 @@
-"""axios_python - A developer-experience-first HTTP client for Python.
-
-Provides an Axios-inspired interface with interceptors, middleware,
-retry, cancellation tokens, and a plugin system on top of httpx.
-
-Quick start::
-
-    import axios_python
-
-    api = axios_python.create({"base_url": "https://api.example.com"})
-    response = api.get("/users")
-    print(response.data)
-"""
+# Copyright (c) 2026 Avijit
+# Licensed under the MIT License.
 
 from __future__ import annotations
 
@@ -28,6 +17,7 @@ from axios_python.exceptions import (
     TimeoutError,
     HTTPStatusError,
 )
+from axios_python.helpers import all, spread
 from axios_python.plugins.auth import AuthPlugin
 from axios_python.plugins.base import Plugin
 from axios_python.plugins.cache import CachePlugin
@@ -68,42 +58,28 @@ __all__ = [
     "FixedDelay",
     "ExponentialBackoff",
     "LinearBackoff",
+    "all",
+    "spread",
     "request",
     "get",
     "post",
     "put",
     "patch",
     "delete",
+    "head",
+    "options",
     "async_request",
     "async_get",
     "async_post",
     "async_put",
     "async_patch",
     "async_delete",
+    "async_head",
+    "async_options",
 ]
 
 
 def create(config: dict[str, Any] | None = None, **kwargs: Any) -> AxiosPython:
-    """Create a new axios_python client instance.
-
-    This is the primary entry point for the library.
-
-    Args:
-        config: A configuration dict with keys like ``base_url``,
-            ``timeout``, ``headers``, ``params``, ``max_retries``, etc.
-        **kwargs: Additional config keys merged into *config*.
-
-    Returns:
-        A configured :class:`AxiosPython` client instance.
-
-    Example::
-
-        api = axios_python.create({
-            "base_url": "https://api.example.com",
-            "timeout": 10,
-        })
-        response = api.get("/users")
-    """
     merged = dict(config or {})
     merged.update(kwargs)
     return AxiosPython(config=merged)
@@ -129,6 +105,12 @@ def patch(url: str, **kwargs: Any) -> Response:
 def delete(url: str, **kwargs: Any) -> Response:
     return _default_instance.delete(url, **kwargs)
 
+def head(url: str, **kwargs: Any) -> Response:
+    return _default_instance.head(url, **kwargs)
+
+def options(url: str, **kwargs: Any) -> Response:
+    return _default_instance.options(url, **kwargs)
+
 async def async_request(method: str, url: str, **kwargs: Any) -> Response:
     return await _default_instance.async_request(method, url, **kwargs)
 
@@ -146,3 +128,9 @@ async def async_patch(url: str, **kwargs: Any) -> Response:
 
 async def async_delete(url: str, **kwargs: Any) -> Response:
     return await _default_instance.async_delete(url, **kwargs)
+
+async def async_head(url: str, **kwargs: Any) -> Response:
+    return await _default_instance.async_head(url, **kwargs)
+
+async def async_options(url: str, **kwargs: Any) -> Response:
+    return await _default_instance.async_options(url, **kwargs)

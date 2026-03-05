@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Avijit
+# Licensed under the MIT License.
+
 from __future__ import annotations
 
 from typing import Any
@@ -23,4 +26,5 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "headers": dict(DEFAULT_HEADERS),
     "params": {},
     "max_retries": DEFAULT_MAX_RETRIES,
+    "follow_redirects": True,
 }

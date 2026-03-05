@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Avijit
+# Licensed under the MIT License.
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -21,3 +24,4 @@ class PreparedRequest:
     files: Any = None
     stream: bool = False
     timeout: int | float = 30
+    follow_redirects: bool = True

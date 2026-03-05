@@ -1,6 +1,9 @@
+# Copyright (c) 2026 Avijit
+# Licensed under the MIT License.
+
 from __future__ import annotations
 
-from typing import Any, TypedDict
+from typing import Any, Callable, TypedDict
 
 from axios_python.defaults import DEFAULT_CONFIG
 from axios_python.utils.merge import deep_merge
@@ -12,7 +15,6 @@ __all__ = [
 
 
 class RequestConfig(TypedDict, total=False):
-    """Configuration options for a single request."""
 
     method: str
     url: str
@@ -28,6 +30,9 @@ class RequestConfig(TypedDict, total=False):
     retry_strategy: Any
     retry_on: Any
     cancel_token: Any
+    follow_redirects: bool
+    transform_request: list[Callable[..., Any]]
+    transform_response: list[Callable[..., Any]]
 
 
 def merge_config(*configs: dict[str, Any]) -> dict[str, Any]:
