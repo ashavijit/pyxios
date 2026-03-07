@@ -32,7 +32,8 @@ def parse_model(model_cls: type[T], data: Any) -> T | Any:
             return data
 
     if isinstance(model_cls, type) and issubclass(model_cls, getattr(pydantic, "BaseModel", type(None))):
-        return model_cls.parse_obj(data)
+        import typing
+        return typing.cast(Any, model_cls).parse_obj(data)
     
     if getattr(pydantic, "parse_obj_as", None):
         try:

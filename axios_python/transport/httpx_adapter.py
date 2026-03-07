@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import httpx
 
+from typing import AsyncIterator, Callable, Iterator, Any
+
 from axios_python.exceptions import NetworkError, TimeoutError
 from axios_python.progress import ProgressEvent
 from axios_python.request import PreparedRequest
@@ -12,26 +14,26 @@ from axios_python.response import Response
 from axios_python.transport.base import BaseTransport
 
 class UploadProgressStream(httpx.SyncByteStream):
-    def __init__(self, stream, callback, total):
+    def __init__(self, stream: httpx.SyncByteStream | Any, callback: Callable[[ProgressEvent], None], total: int | None) -> None:
         self._stream = stream
         self._callback = callback
         self._loaded = 0
         self._total = total
         
-    def __iter__(self):
+    def __iter__(self) -> Iterator[bytes]:
         for chunk in self._stream:
             self._loaded += len(chunk)
             self._callback(ProgressEvent(loaded=self._loaded, total=self._total))
             yield chunk
 
 class AsyncUploadProgressStream(httpx.AsyncByteStream):
-    def __init__(self, stream, callback, total):
+    def __init__(self, stream: httpx.AsyncByteStream | Any, callback: Callable[[ProgressEvent], None], total: int | None) -> None:
         self._stream = stream
         self._callback = callback
         self._loaded = 0
         self._total = total
         
-    async def __aiter__(self):
+    async def __aiter__(self) -> AsyncIterator[bytes]:
         async for chunk in self._stream:
             self._loaded += len(chunk)
             self._callback(ProgressEvent(loaded=self._loaded, total=self._total))
@@ -47,6 +49,7 @@ class HttpxTransport(BaseTransport):
     def __init__(self) -> None:
         self._sync_client: httpx.Client | None = None
         self._async_client: httpx.AsyncClient | None = None
+        self._async_client_loop: Any = None
 
     def _get_sync_client(self) -> httpx.Client:
         if self._sync_client is None:
@@ -55,11 +58,12 @@ class HttpxTransport(BaseTransport):
 
     def _get_async_client(self) -> httpx.AsyncClient:
         import asyncio
+        import typing
         loop = asyncio.get_running_loop()
         if not hasattr(self, "_async_client_loop") or self._async_client_loop is not loop:
             self._async_client = httpx.AsyncClient()
             self._async_client_loop = loop
-        return self._async_client
+        return typing.cast(httpx.AsyncClient, self._async_client)
 
     def _build_response(self, raw: httpx.Response, request: PreparedRequest, pre_fetched_data: bytes | None = None) -> Response:
         data = None

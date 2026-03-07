@@ -69,9 +69,9 @@ class AxiosPython:
     def _resolve_url(self, config: dict[str, Any]) -> str:
         base = config.get("base_url", "").rstrip("/")
         path = config.get("url", "")
-        if path.startswith(("http://", "https://")):
-            return path
-        return f"{base}/{path.lstrip('/')}" if base else path
+        if str(path).startswith(("http://", "https://")):
+            return str(path)
+        return f"{base}/{str(path).lstrip('/')}" if base else str(path)
 
     def _apply_request_transforms(self, config: dict[str, Any]) -> dict[str, Any]:
         transforms = config.get("transform_request")
@@ -142,7 +142,7 @@ class AxiosPython:
         response = retry.execute(transport_call)
         response = self._apply_response_transforms(response, config)
         response = self._interceptors.response.run(response)
-        return response
+        return response  # type: ignore[no-any-return]
 
     async def _execute_async(self, config: dict[str, Any]) -> Response:
         cancel_token: CancelToken | None = config.get("cancel_token")
@@ -164,13 +164,13 @@ class AxiosPython:
         response = await retry.execute_async(transport_call)
         response = self._apply_response_transforms(response, config)
         response = await self._interceptors.response.run_async(response)
-        return response
+        return response  # type: ignore[no-any-return]
 
     async def _dispatch_async(self, config: dict[str, Any]) -> Response:
         if len(self._middleware) > 0:
             async def final(ctx: dict[str, Any]) -> Response:
                 return await self._execute_async(ctx)
-            return await self._middleware.execute(config, final)
+            return await self._middleware.execute(config, final)  # type: ignore[no-any-return]
         return await self._execute_async(config)
 
     def _dispatch_sync(self, config: dict[str, Any]) -> Response:

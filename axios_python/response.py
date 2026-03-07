@@ -82,37 +82,37 @@ class Response:
 
     def iter_bytes(self, chunk_size: int | None = None) -> Iterator[bytes]:
         """Iterate over the response body in bytes."""
-        return self._raw.iter_bytes(chunk_size=chunk_size)
+        return self._raw.iter_bytes(chunk_size=chunk_size)  # type: ignore[no-any-return]
 
     def iter_text(self, chunk_size: int | None = None) -> Iterator[str]:
         """Iterate over the response body in text."""
-        return self._raw.iter_text(chunk_size=chunk_size)
+        return self._raw.iter_text(chunk_size=chunk_size)  # type: ignore[no-any-return]
 
     def iter_lines(self) -> Iterator[str]:
         """Iterate over the response body line by line."""
-        return self._raw.iter_lines()
+        return self._raw.iter_lines()  # type: ignore[no-any-return]
 
     def aiter_bytes(self, chunk_size: int | None = None) -> AsyncIterator[bytes]:
         """Asynchronously iterate over the response body in bytes."""
-        return self._raw.aiter_bytes(chunk_size=chunk_size)
+        return self._raw.aiter_bytes(chunk_size=chunk_size)  # type: ignore[no-any-return]
 
     def aiter_text(self, chunk_size: int | None = None) -> AsyncIterator[str]:
         """Asynchronously iterate over the response body in text."""
-        return self._raw.aiter_text(chunk_size=chunk_size)
+        return self._raw.aiter_text(chunk_size=chunk_size)  # type: ignore[no-any-return]
 
     def aiter_lines(self) -> AsyncIterator[str]:
         """Asynchronously iterate over the response body line by line."""
-        return self._raw.aiter_lines()
+        return self._raw.aiter_lines()  # type: ignore[no-any-return]
 
     def read(self) -> bytes:
         """Read the entire response body in bytes."""
         self.data = self._raw.read()
-        return self.data
+        return self.data  # type: ignore[no-any-return]
 
     async def aread(self) -> bytes:
         """Asynchronously read the entire response body in bytes."""
         self.data = await self._raw.aread()
-        return self.data
+        return self.data  # type: ignore[no-any-return]
 
     def close(self) -> None:
         """Close the underlying HTTP response stream."""
