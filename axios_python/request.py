@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Callable
+
+from axios_python.progress import ProgressEvent
 
 __all__ = [
     "PreparedRequest",
@@ -25,3 +27,5 @@ class PreparedRequest:
     stream: bool = False
     timeout: int | float = 30
     follow_redirects: bool = True
+    on_upload_progress: Callable[[ProgressEvent], None] | None = None
+    on_download_progress: Callable[[ProgressEvent], None] | None = None

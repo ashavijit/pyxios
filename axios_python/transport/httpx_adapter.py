@@ -6,9 +6,36 @@ from __future__ import annotations
 import httpx
 
 from axios_python.exceptions import NetworkError, TimeoutError
+from axios_python.progress import ProgressEvent
 from axios_python.request import PreparedRequest
 from axios_python.response import Response
 from axios_python.transport.base import BaseTransport
+
+class UploadProgressStream(httpx.SyncByteStream):
+    def __init__(self, stream, callback, total):
+        self._stream = stream
+        self._callback = callback
+        self._loaded = 0
+        self._total = total
+        
+    def __iter__(self):
+        for chunk in self._stream:
+            self._loaded += len(chunk)
+            self._callback(ProgressEvent(loaded=self._loaded, total=self._total))
+            yield chunk
+
+class AsyncUploadProgressStream(httpx.AsyncByteStream):
+    def __init__(self, stream, callback, total):
+        self._stream = stream
+        self._callback = callback
+        self._loaded = 0
+        self._total = total
+        
+    async def __aiter__(self):
+        async for chunk in self._stream:
+            self._loaded += len(chunk)
+            self._callback(ProgressEvent(loaded=self._loaded, total=self._total))
+            yield chunk
 
 __all__ = [
     "HttpxTransport",
@@ -34,16 +61,25 @@ class HttpxTransport(BaseTransport):
             self._async_client_loop = loop
         return self._async_client
 
-    def _build_response(self, raw: httpx.Response, request: PreparedRequest) -> Response:
+    def _build_response(self, raw: httpx.Response, request: PreparedRequest, pre_fetched_data: bytes | None = None) -> Response:
         data = None
         if not request.stream:
-            try:
-                data = raw.json()
-            except Exception:
+            if pre_fetched_data is not None:
                 try:
-                    data = raw.text
+                    data = __import__('json').loads(pre_fetched_data)
                 except Exception:
-                    pass
+                    try:
+                        data = pre_fetched_data.decode('utf-8')
+                    except Exception:
+                        data = pre_fetched_data
+            else:
+                try:
+                    data = raw.json()
+                except Exception:
+                    try:
+                        data = raw.text
+                    except Exception:
+                        pass
         return Response(
             status_code=raw.status_code,
             headers=dict(raw.headers),
@@ -65,6 +101,29 @@ class HttpxTransport(BaseTransport):
                 files=request.files,
                 timeout=request.timeout,
             )
+            if request.on_upload_progress and hasattr(req, "stream") and req.stream is not None:
+                total_str = req.headers.get("content-length")
+                total = int(total_str) if total_str and total_str.isdigit() else None
+                req.stream = UploadProgressStream(req.stream, request.on_upload_progress, total)
+
+            if request.on_download_progress and not request.stream:
+                raw = client.send(
+                    req,
+                    stream=True,
+                    follow_redirects=request.follow_redirects,
+                )
+                total_str = raw.headers.get("content-length")
+                total = int(total_str) if total_str and total_str.isdigit() else None
+                
+                loaded = 0
+                chunks = []
+                for chunk in raw.iter_bytes():
+                    chunks.append(chunk)
+                    loaded += len(chunk)
+                    request.on_download_progress(ProgressEvent(loaded=loaded, total=total))
+                raw.close()
+                return self._build_response(raw, request, pre_fetched_data=b"".join(chunks))
+
             raw = client.send(
                 req,
                 stream=request.stream,
@@ -89,6 +148,29 @@ class HttpxTransport(BaseTransport):
                 files=request.files,
                 timeout=request.timeout,
             )
+            if request.on_upload_progress and hasattr(req, "stream") and req.stream is not None:
+                total_str = req.headers.get("content-length")
+                total = int(total_str) if total_str and total_str.isdigit() else None
+                req.stream = AsyncUploadProgressStream(req.stream, request.on_upload_progress, total)
+
+            if request.on_download_progress and not request.stream:
+                raw = await client.send(
+                    req,
+                    stream=True,
+                    follow_redirects=request.follow_redirects,
+                )
+                total_str = raw.headers.get("content-length")
+                total = int(total_str) if total_str and total_str.isdigit() else None
+                
+                loaded = 0
+                chunks = []
+                async for chunk in raw.aiter_bytes():
+                    chunks.append(chunk)
+                    loaded += len(chunk)
+                    request.on_download_progress(ProgressEvent(loaded=loaded, total=total))
+                await raw.aclose()
+                return self._build_response(raw, request, pre_fetched_data=b"".join(chunks))
+
             raw = await client.send(
                 req,
                 stream=request.stream,

@@ -17,6 +17,7 @@ from axios_python.retry.strategy import RetryStrategy
 from axios_python.transport.base import BaseTransport
 from axios_python.transport.httpx_adapter import HttpxTransport
 from axios_python.utils.async_utils import run_sync
+from axios_python.utils.pydantic import parse_model
 
 __all__ = [
     "AxiosPython",
@@ -86,12 +87,16 @@ class AxiosPython:
 
     def _apply_response_transforms(self, response: Response, config: dict[str, Any]) -> Response:
         transforms = config.get("transform_response")
-        if not transforms:
-            return response
-        data = response.data
-        for fn in transforms:
-            data = fn(data)
-        response.data = data
+        if transforms:
+            data = response.data
+            for fn in transforms:
+                data = fn(data)
+            response.data = data
+
+        model_cls = config.get("response_model")
+        if model_cls is not None and response.data is not None:
+            response.data = parse_model(model_cls, response.data)
+
         return response
 
     def _prepare_request(self, config: dict[str, Any]) -> PreparedRequest:
@@ -106,6 +111,8 @@ class AxiosPython:
             stream=config.get("stream", False),
             timeout=config.get("timeout", 30),
             follow_redirects=config.get("follow_redirects", True),
+            on_upload_progress=config.get("on_upload_progress"),
+            on_download_progress=config.get("on_download_progress"),
         )
 
     def _build_retry_engine(self, config: dict[str, Any]) -> RetryEngine:
