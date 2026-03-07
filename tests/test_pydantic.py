@@ -2,6 +2,8 @@
 # Licensed under the MIT License.
 
 import pytest
+pytest.importorskip("pydantic")
+
 import respx
 from httpx import Response
 from pydantic import BaseModel
