@@ -8,7 +8,7 @@ from typing import Any, TypeVar
 
 HAS_PYDANTIC = False
 try:
-    import pydantic
+    import pydantic  # type: ignore[import-not-found, import-untyped]
     HAS_PYDANTIC = True
 except ImportError:
     pass
@@ -24,7 +24,7 @@ def parse_model(model_cls: type[T], data: Any) -> T | Any:
 
     if hasattr(pydantic, "VERSION") and pydantic.VERSION.startswith("2."):
         if isinstance(model_cls, type) and issubclass(model_cls, pydantic.BaseModel):
-            return model_cls.model_validate(data)
+            return model_cls.model_validate(data)  # type: ignore[attr-defined]
         from pydantic import TypeAdapter
         try:
             return TypeAdapter(model_cls).validate_python(data)
